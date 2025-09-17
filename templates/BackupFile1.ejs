@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rockfall Prediction mkI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        color: white;
+        background-color: #000;
+        overflow-x: hidden;
+    }
+
+    /* --- Full Screen Landing Section with Background Image --- */
+    .landing-section {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                          url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        overflow: hidden;
+    }
+
+    /* --- Navigation Bar --- */
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 20px 50px;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(15px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 1000;
+        transition: all 0.3s ease;
+    }
+
+    .navbar.scrolled {
+        background: rgba(0, 0, 0, 0.9);
+        backdrop-filter: blur(20px);
+    }
+
+    .logo {
+        font-size: 1.3rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        background: linear-gradient(135deg, #fff, #ccc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .nav-links {
+        list-style: none;
+        display: flex;
+        gap: 30px;
+        margin: 0;
+        padding: 0;
+    }
+
+    .nav-links a {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        font-weight: 400;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .nav-links a::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(135deg, #fff, #ccc);
+        transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover {
+        color: #fff;
+    }
+
+    .nav-links a:hover::after {
+        width: 100%;
+    }
+
+    .parallax{
+        pointer-events: none;
+        transition: 0.45 cubic-bezier(.2,.49,.32,.99)
+
+    }
+
+    main{
+        position: relative;
+        background-color: #000;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+    }
+
+    .layer4{
+        position: absolute;
+        width: 2800px;
+        top: calc(90%);
+        left: calc(40%);
+        z-index: 1;
+    }
+
+    .layer3{
+        position: absolute;
+        width: 3000px;
+        top: calc(40%);
+        left: calc(12%);
+        scale: 0.6;
+        z-index: 2;
+    }
+
+    .layer2{
+        position: absolute;
+        width: 600px;
+        top: calc(85%);
+        left: calc(10%);
+        z-index: 3;
+    }
+
+    .layer1{
+        position: absolute;
+        width: 1600px;
+        top: calc(40%);
+        left: calc(50%);
+        /* scale: 0.85; */
+        z-index: 4;
+    }
+
+
+    /* --- Hero Content in Landing Section --- */
+    .hero-content {
+        position: relative;
+        z-index: 5;
+        text-align: left;
+        padding-left: 8%;
+        width: 100%;
+        max-width: 1200px;
+        animation: fadeInUp 1.2s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .hero-content h1 {
+        font-size: 8rem;
+        font-weight: 700;
+        line-height: 1.1;
+        margin: 0;
+        letter-spacing: -5px;
+        background: linear-gradient(135deg, #ffffff, #e0e0e0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
+    }
+
+    .subtitle-container {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        margin-top: 30px;
+    }
+
+    .subtitle-container p {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 300;
+        letter-spacing: 2px;
+        color: rgba(255, 255, 255, 0.9);
+        text-transform: uppercase;
+    }
+
+    .circle-next {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.4s ease;
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .circle-next:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.9);
+        transform: scale(1.05);
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+    }
+
+    .circle-next p {
+        font-size: 0.8rem;
+        font-weight: 400;
+        letter-spacing: 1px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateX(-50%) translateY(0);
+        }
+        40% {
+            transform: translateX(-50%) translateY(-10px);
+        }
+        60% {
+            transform: translateX(-50%) translateY(-5px);
+        }
+    }
+    .scroll-arrow {
+        width: 2px;
+        height: 30px;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), transparent);
+        position: relative;
+    }
+
+    .scroll-arrow::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 6px solid rgba(255, 255, 255, 0.8);
+    }
+
+    /* --- Content Sections --- */
+    .content-section {
+        background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+        padding: 6rem 0;
+        position: relative;
+    }
+
+    .content-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 4%;
+    }
+
+    .content-section h2 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 2rem;
+        background: linear-gradient(135deg, #ffffff, #cccccc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .content-section p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        font-weight: 300;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 2rem;
+        text-align: justify;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 3rem;
+        margin-top: 4rem;
+    }
+
+    .content-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 2.5rem;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+
+    .content-card:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-5px);
+    }
+
+    .content-card h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #fff;
+    }
+
+    /* --- Input Section --- */
+    .input-section {
+        background: linear-gradient(135deg, rgba(10, 10, 10, 0.98), rgba(30, 30, 30, 0.98));
+        backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 5rem 0;
+        position: relative;
+    }
+
+    .input-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 4%;
+    }
+
+    .input-container h2 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #ffffff, #cccccc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .input-description {
+        text-align: center;
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 4rem;
+        letter-spacing: 0.5px;
+    }
+
+    .prediction-form {
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2.5rem;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .input-group label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .input-with-unit {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .input-with-unit:hover {
+        border-color: rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .input-with-unit:focus-within {
+        border-color: rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
+    }
+
+    .input-with-unit input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        padding: 1.2rem;
+        color: white;
+        font-size: 1rem;
+        font-family: 'Poppins', sans-serif;
+        outline: none;
+    }
+
+    .input-with-unit input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .unit {
+        padding: 1.2rem;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.08);
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
+        font-weight: 400;
+        letter-spacing: 0.5px;
+    }
+
+    /* File Input Styles */
+    .file-input-group {
+        grid-column: span 2;
+    }
+
+    .file-input-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .file-input-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px dashed rgba(255, 255, 255, 0.3);
+        border-radius: 12px;
+        color: rgba(255, 255, 255, 0.8);
+        font-family: 'Poppins', sans-serif;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .file-input-button:hover {
+        border-color: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .file-name {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+        text-align: center;
+        font-style: italic;
+    }
+
+    .file-info {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+        text-align: center;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .predict-button {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.3rem 3rem;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50px;
+        color: white;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .predict-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .predict-button:hover::before {
+        left: 100%;
+    }
+
+    .predict-button:hover {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1));
+        border-color: rgba(255, 255, 255, 0.5);
+        box-shadow: 0 15px 40px rgba(255, 255, 255, 0.1);
+        transform: translateY(-3px);
+    }
+
+    .reset-button {
+        padding: 1.3rem 2.5rem;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50px;
+        color: rgba(255, 255, 255, 0.7);
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 400;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .reset-button:hover {
+        border-color: rgba(255, 255, 255, 0.4);
+        color: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* --- Media Queries --- */
+    @media (max-width: 768px) {
+        .navbar {
+            flex-direction: column;
+            padding: 15px 20px;
+        }
+
+        .nav-links {
+            margin-top: 15px;
+            gap: 20px;
+        }
+
+        .hero-content {
+            padding-left: 5%;
+            text-align: center;
+        }
+
+        .hero-content h1 {
+            font-size: 4rem;
+        }
+
+        .subtitle-container {
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .content-section {
+            padding: 4rem 0;
+        }
+
+        .content-section h2 {
+            font-size: 2.5rem;
+        }
+
+        .input-container h2 {
+            font-size: 2.5rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .file-input-group {
+            grid-column: span 1;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .predict-button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .hero-content h1 {
+            font-size: 4rem;
+        }
+
+        .subtitle-container p {
+            font-size: 0.9rem;
+        }
+
+        .circle-next {
+            width: 50px;
+            height: 50px;
+        }
+
+        .content-section h2 {
+            font-size: 2rem;
+        }
+
+        .input-container h2 {
+            font-size: 2rem;
+        }
+    }
+</style>
+<body>
+    <!-- Navigation Bar -->
+    <header>
+        <nav class="navbar" id="navbar">
+            <div class="logo">ROCKFALL PREDICTION</div>
+            <ul class="nav-links">
+                <li><a href="#home">HOME</a></li>
+                <li><a href="#about">ABOUT</a></li>
+                <li><a href="#prediction">PREDICTION</a></li>
+                <li><a href="#contact">CONTACT</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Landing Section with Background Image -->
+    <mian>
+        <section class="landing-section" id="home">
+            <div class="hero-content">
+                <h1>ROCK/<br>&nbsp&nbsp&nbsp&nbsp&nbspShield.</h1>
+                <div class="subtitle-container">
+                    <p>For rockfall prediction in open pit mines</p>
+                    <div class="circle-next" onclick="scrollToSection('about')">
+                        <p>NEXT</p>
+                    </div>
+                </div>
+            </div>
+            <img src="/SIH files/assets/layer4.png" alt="background" data-speedx="0.125" data-speedy="0.05" class="parallax layer4">
+            <img src="/SIH files/assets/layer3.png" alt="background" data-speedx="0.08" data-speedy="0.024" class="parallax layer3">
+            <img src="/SIH files/assets/layer2.png" alt="background" data-speedx="0.05" data-speedy="0.017" class="parallax layer2">
+            <img src="/SIH files/assets/layer1.png" alt="background" data-speedx="0.0235" data-speedy="0.01" class="parallax layer1">
+        </section>
+    </mian>
+    <!-- About Section -->
+    <section class="content-section" id="about">
+        <div class="content-container">
+            <h2>Understanding Rockfall</h2>
+            <p>
+                Favourable geology and climate are the principal causal mechanisms of rockfall, factors that include intact condition of the rock mass, discontinuities within the rockmass, weathering susceptibility, ground and surface water, freeze-thaw, root-wedging, and external stresses. A tree may be blown by the wind, and this causes a pressure at the root level and this loosens rocks and can trigger a fall. The pieces of rock collect at the bottom creating a talus or scree. Rocks falling from the cliff may dislodge other rocks and serve to create another mass wasting process, for example an avalanche.
+            </p>
+            
+            <div class="content-grid">
+                <div class="content-card">
+                    <h3>Geological Factors</h3>
+                    <p>Rock mass conditions, joint patterns, weathering processes, and structural discontinuities that influence slope stability and failure mechanisms.</p>
+                </div>
+                <div class="content-card">
+                    <h3>Environmental Triggers</h3>
+                    <p>Climate conditions including freeze-thaw cycles, rainfall intensity, temperature variations, and wind loading effects on rock faces.</p>
+                </div>
+                <div class="content-card">
+                    <h3>Monitoring Systems</h3>
+                    <p>Advanced sensor networks, seismic monitoring, strain gauges, and pressure sensors for real-time slope stability assessment.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Input Section -->
+    <section class="input-section" id="prediction">
+        <div class="input-container">
+            <h2>Rockfall Risk Assessment</h2>
+            <p class="input-description">Enter environmental and geological parameters to analyze rockfall probability</p>
+            
+            <form class="prediction-form">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label for="rainfall">Rainfall</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="rainfall" name="rainfall" step="0.1" min="0" placeholder="0.0">
+                            <span class="unit">mm/hr</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="windspeed">Wind Speed</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="windspeed" name="windspeed" step="0.1" min="0" placeholder="0.0">
+                            <span class="unit">m/s</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="temperature">Temperature</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="temperature" name="temperature" step="0.1" placeholder="0.0">
+                            <span class="unit">°C</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="strain">Strain</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="strain" name="strain" step="0.000001" min="0" placeholder="0.000000">
+                            <span class="unit">με</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="pore-pressure">Pore Pressure</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="pore-pressure" name="pore-pressure" step="0.1" min="0" placeholder="0.0">
+                            <span class="unit">kPa</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Displacement">Displacement</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="Displacement" name="Displacement" step="0.1" min="0" placeholder="0.0">
+                            <span class="unit">m</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group file-input-group">
+                        <label for="seismic-data">Seismic Data</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="seismic-data" name="seismic-data" accept=".csv,.txt,.dat,.json" hidden>
+                            <button type="button" class="file-input-button" onclick="document.getElementById('seismic-data').click()">
+                                <span class="file-text">Choose File</span>
+                            </button>
+                            <span class="file-name" id="file-name">No file selected</span>
+                        </div>
+                        <small class="file-info">Accepted formats: CSV, TXT, DAT, JSON</small>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="predict-button">
+                        <span>ANALYZE RISK</span>
+                    </button>
+                    <button type="reset" class="reset-button">RESET FORM</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <script>
+        //Parallax effect
+        const parallax_el = document.querySelectorAll(".parallax");
+        let xvalue=0,yvalue=0;
+
+        window.addEventListener("mousemove", (e) => {
+            xvalue = e.clientX - window.innerWidth/2;
+            yvalue = e.clientY - window.innerHeight/2;
+
+            parallax_el.forEach((el) => {
+                let speedx = el.dataset.speedx;
+                let speedy = el.dataset.speedy;
+                el.style.transform = `translate(calc(-50% + ${-xvalue * speedx}px)) translate(calc(-50% + ${yvalue * speedy}px))`
+            })
+        })
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scroll function
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // File input handling
+        document.getElementById('seismic-data').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || 'No file selected';
+            document.getElementById('file-name').textContent = fileName;
+        });
+
+        // Form submission handling
+        document.querySelector('.prediction-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(this);
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                if (key !== 'seismic-data') {
+                    data[key] = value;
+                }
+            }
+            
+            // Add file info
+            const fileInput = document.getElementById('seismic-data');
+            if (fileInput.files[0]) {
+                data['seismic-file'] = fileInput.files[0].name;
+            }
+            
+            console.log('Form data:', data);
+            alert('Risk analysis initiated! Check console for submitted data.');
+        });
+
+        // Navigation link smooth scrolling
+        document.querySelectorAll('.nav-links a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                scrollToSection(targetId);
+            });
+        });
+    </script>
+</body>
+</html>
